@@ -1,0 +1,29 @@
+.status-created {
+  color: #f59e0b;
+}
+
+.status-submitted {
+  color: #3b82f6;
+}
+
+.status-validated {
+  color: #84cc16;
+}
+
+.status-paid {
+  color: #10b981;
+}
+
+.status-denied {
+  color: #ef4444;
+}
+
+/* Smooth scrolling for filter chips */
+.overflow-x-auto {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.overflow-x-auto::-webkit-scrollbar {
+  display: none;
+}

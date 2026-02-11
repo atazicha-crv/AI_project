@@ -172,3 +172,158 @@ This file records architectural and implementation decisions using a list format
 - `whitelist: true` strips unknown properties
 - `forbidNonWhitelisted: true` rejects unknown properties
 - `transform: true` enables automatic type conversion
+
+---
+
+## [2026-02-11 10:53:00] Écran Expense Reports - Architecture React
+
+### Decision 1: TailwindCSS avec Thème Personnalisé
+
+**Rationale:**
+- Le design HTML fourni utilise déjà TailwindCSS avec un thème custom
+- Cohérence avec le design existant
+- Facilite le mode sombre avec la classe `dark:`
+- Permet une personnalisation rapide des couleurs (primary: #40B59D)
+
+**Implementation:**
+- Extension du `tailwind.config.js` avec les couleurs personnalisées
+- Classes CSS custom pour les statuts (status-created, status-submitted, etc.)
+- Support du mode sombre via `darkMode: 'class'`
+
+---
+
+### Decision 2: Material Symbols Outlined pour les Icônes
+
+**Rationale:**
+- Déjà utilisé dans le design HTML fourni
+- Bibliothèque complète et cohérente
+- Facile à intégrer via CDN
+- Mapping direct avec les catégories d'expenses
+
+**Implementation:**
+- Ajout du lien CDN dans `index.html`
+- Création d'un mapping catégorie → icône dans `category-icons.ts`
+- Utilisation de `<span className="material-symbols-outlined">`
+
+---
+
+### Decision 3: Framer Motion pour les Animations
+
+**Rationale:**
+- Animations fluides et performantes
+- API déclarative facile à utiliser
+- Support des transitions complexes (slide-up modal)
+- Gestion automatique du unmount avec AnimatePresence
+
+**Implementation:**
+- Installation de `framer-motion`
+- Animations sur FilterModal (slide-up), FilterChips (fade), Overlay (fade)
+- Utilisation de `motion.div` avec initial/animate/exit
+
+---
+
+### Decision 4: Headless UI pour les Modals
+
+**Rationale:**
+- Accessibilité intégrée (ARIA, focus trap)
+- Compatible avec TailwindCSS
+- Gestion automatique du focus et de l'overlay
+- Léger et performant
+
+**Implementation:**
+- Installation de `@headlessui/react`
+- Utilisation de `Dialog` pour FilterModal
+- Focus management automatique avec `initialFocus`
+
+---
+
+### Decision 5: Architecture Modulaire avec Composants Atomiques
+
+**Rationale:**
+- Réutilisabilité maximale
+- Facilite les tests unitaires
+- Maintenance simplifiée
+- Permet le lazy loading sélectif
+
+**Implementation:**
+- Hiérarchie: Atomiques (CategoryIcon, StatusBadge) → Composés (ReportCard, FilterModal) → Pages
+- 20+ composants séparés dans des fichiers dédiés
+- Props typées avec TypeScript strict
+
+---
+
+### Decision 6: Custom Hooks pour la Logique Métier
+
+**Rationale:**
+- Séparation des préoccupations (UI vs logique)
+- Réutilisabilité de la logique
+- Facilite les tests
+- Permet l'optimisation (memoization, cache)
+
+**Implementation:**
+- `useExpenseReports`: Fetch et gestion des données
+- `useDebouncedValue`: Optimisation de la recherche
+- Possibilité d'ajouter `useFilters`, `useSort` si nécessaire
+
+---
+
+### Decision 7: Debounce de 500ms sur la Recherche
+
+**Rationale:**
+- Réduit le nombre de requêtes API
+- Améliore les performances
+- Meilleure UX (pas de lag)
+- Standard de l'industrie (300-500ms)
+
+**Implementation:**
+- Hook `useDebouncedValue` avec delay configurable
+- Application sur `searchQuery` avant de passer aux filtres
+- Utilisation de `useEffect` avec cleanup
+
+---
+
+### Decision 8: FilterState Centralisé
+
+**Rationale:**
+- Single source of truth pour tous les filtres
+- Facilite la synchronisation avec l'URL (future feature)
+- Simplifie la logique de reset/clear
+- Permet la persistance (localStorage)
+
+**Implementation:**
+- Interface `FilterState` avec tous les paramètres
+- `DEFAULT_FILTERS` constant pour reset
+- Gestion via `useState` dans ExpenseReportsPage
+- Transformation en query params pour l'API
+
+---
+
+### Decision 9: Bottom Sheet Modal (Mobile-First)
+
+**Rationale:**
+- Design fourni utilise un bottom sheet
+- Meilleure UX sur mobile (thumb-friendly)
+- Animation naturelle (slide-up)
+- Peut être adapté en modal centré sur desktop
+
+**Implementation:**
+- Modal fixé en `bottom-0` avec `rounded-t-xl`
+- Animation slide-up avec Framer Motion
+- Overlay avec backdrop blur
+- Hauteur max de 70vh pour le contenu scrollable
+
+---
+
+### Decision 10: Memoization et Lazy Loading
+
+**Rationale:**
+- Optimisation des performances
+- Évite les re-renders inutiles
+- Réduit le bundle size initial
+- Améliore le Time to Interactive
+
+**Implementation:**
+- `React.memo` sur ReportCard avec custom comparison
+- `lazy()` pour FilterModal
+- `useMemo` pour les filtres actifs et les calculs dérivés
+- Virtualisation possible si >100 rapports
